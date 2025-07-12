@@ -74,30 +74,50 @@ app.post('/battle-recommendation', async (req, res) => {
     const myPokemonsData = snapshot.val();
     const myPokemonList = myPokemonsData ? Object.values(myPokemonsData) : [];
 
-    if (myPokemonList.length === 0) {
-        return res.status(400).send('내 포켓몬이 없습니다. 먼저 포켓몬을 추가해주세요.');
-    }
-
-    // 2. Gemini AI 프롬프트 생성
     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-    const prompt = `
-      당신은 닌텐도 포켓몬스터 실드 게임 전문가입니다.
-      내가 현재 가진 포켓몬 목록은 다음과 같습니다: ${myPokemonList.join(', ')}.
-      새롭게 만난 야생 포켓몬은 "${wildPokemon}"입니다.
+    let prompt;
 
-      다음 형식에 맞춰 답변해주세요:
+    // 2. 내 포켓몬 목록 유무에 따라 다른 프롬프트 생성
+    if (myPokemonList.length === 0) {
+      // 내 포켓몬이 없을 경우
+      prompt = `
+        당신은 닌텐도 포켓몬스터 실드 게임 전문가입니다.
+        야생 포켓몬 "${wildPokemon}"을(를) 만났습니다. 이 포켓몬을 상대로 이기기 좋은 포켓몬을 한 마리 추천하고, 그 이유를 설명해주세요.
 
-      ### 야생 포켓몬 분석 (${wildPokemon})
-      *   **타입**: [예: 전기/비행]
-      *   **주요 능력**: [예: 정전기, 혹은 게임상에서 유명한 능력]
-      *   **상성 관계**: 
-          *   유리한 타입: [예: 물, 비행]
-          *   불리한 타입: [예: 땅]
+        다음 형식에 맞춰 답변해주세요:
 
-      ### 배틀 추천
-      *   **추천 포켓몬**: [내 포켓몬 중 가장 유리한 포켓몬 이름]
-      *   **추천 이유**: [왜 그 포켓몬이 유리한지 간단한 설명]
-    `;
+        ### 야생 포켓몬 분석 (${wildPokemon})
+        *   **타입**: [예: 전기/비행]
+        *   **주요 능력**: [예: 정전기, 혹은 게임상에서 유명한 능력]
+        *   **상성 관계**:
+            *   유리한 타입: [예: 물, 비행]
+            *   불리한 타입: [예: 땅]
+
+        ### 추천 포켓몬
+        *   **이름**: [추천하는 포켓몬의 이름]
+        *   **추천 이유**: [왜 그 포켓몬이 야생 포켓몬을 상대로 유리한지에 대한 설명]
+      `;
+    } else {
+      // 내 포켓몬이 있을 경우
+      prompt = `
+        당신은 닌텐도 포켓몬스터 실드 게임 전문가입니다.
+        내가 현재 가진 포켓몬 목록은 다음과 같습니다: ${myPokemonList.join(', ')}.
+        새롭게 만난 야생 포켓몬은 "${wildPokemon}"입니다.
+
+        다음 형식에 맞춰 답변해주세요:
+
+        ### 야생 포켓몬 분석 (${wildPokemon})
+        *   **타입**: [예: 전기/비행]
+        *   **주요 능력**: [예: 정전기, 혹은 게임상에서 유명한 능력]
+        *   **상성 관계**: 
+            *   유리한 타입: [예: 물, 비행]
+            *   불리한 타입: [예: 땅]
+
+        ### 배틀 추천
+        *   **추천 포켓몬**: [내 포켓몬 중 가장 유리한 포켓몬 이름]
+        *   **추천 이유**: [왜 그 포켓몬이 유리한지 간단한 설명]
+      `;
+    }
 
     // 3. Gemini AI API 호출
     const result = await model.generateContent(prompt);
