@@ -81,7 +81,7 @@ app.post('/battle-recommendation', async (req, res) => {
     // 2. Gemini AI 프롬프트 생성
     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
     const prompt = `
-      당신은 포켓몬스터 게임 전문가입니다.
+      당신은 닌텐도 포켓몬스터 실드 게임 전문가입니다.
       내가 현재 가진 포켓몬 목록은 다음과 같습니다: ${myPokemonList.join(', ')}.
       새롭게 만난 야생 포켓몬은 "${wildPokemon}"입니다.
 
