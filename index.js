@@ -4,8 +4,11 @@ const admin = require('firebase-admin');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 // Firebase Admin SDK 초기화
-// './firebase-service-account-key.json' 파일이 현재 위치에 있어야 합니다.
-const serviceAccount = require('./firebase-service-account-key.json');
+// Vercel 배포 환경에서는 환경 변수에서 서비스 계정 키를 읽어오고,
+// 로컬 환경에서는 파일에서 직접 읽어옵니다.
+const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT
+  ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
+  : require('./firebase-service-account-key.json');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
