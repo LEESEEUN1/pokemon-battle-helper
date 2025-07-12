@@ -74,7 +74,7 @@ app.post('/battle-recommendation', async (req, res) => {
     const myPokemonsData = snapshot.val();
     const myPokemonList = myPokemonsData ? Object.values(myPokemonsData) : [];
 
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" });
     let prompt;
 
     // 2. 내 포켓몬 목록 유무에 따라 다른 프롬프트 생성
