@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const admin = require('firebase-admin');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const cors = require('cors');
 
 // Firebase Admin SDK 초기화
 // Vercel 배포 환경에서는 환경 변수에서 서비스 계정 키를 읽어오고,
@@ -19,6 +20,7 @@ admin.initializeApp({
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const app = express();
+app.use(cors()); // CORS 미들웨어 추가
 app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
